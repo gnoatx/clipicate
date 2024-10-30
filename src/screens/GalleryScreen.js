@@ -43,11 +43,13 @@
 // }
 
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, Image, Button, Modal, TouchableOpacity, StyleSheet } from 'react-native';
 import * as ImagePicker from "expo-image-picker"
+import styles from '../../styles/StyleGalleryScreen';
+import { FFmpegKit, FFmpegKitConfig } from 'ffmpeg-kit-react-native';
 
-export default function GalleryScreen() {
+export function GalleryScreen() {
   const [gifs, setGifs] = useState([
     { uri: 'https://media.giphy.com/media/3o6Mbfal9W7w1WgB9i/giphy.gif' }, // Exemplo de GIF
     { uri: 'https://media.giphy.com/media/1d5E2Wf38BIRLajm/giphy.gif' },
@@ -70,22 +72,58 @@ export default function GalleryScreen() {
     setModalVisible(false);
     setSelectedGif(null);
   };
-  
-  const launchCamera = async () => {
-    const permission = await ImagePicker.requestCameraPermissionsAsync()
-    if(permission.granted === false){
-      alert('Voce precisa de permissao')
-      return;
-    }
-    const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Videos
 
+  const launchGallery = async () => {
+    let permission = await ImagePicker.requestMediaLibraryPermissionsAsync()
+
+    while (permission.granted === false && permission.canAskAgain === true) {
+      alert('Por favor, permita o acesso à galeria.')
+      permission = await ImagePicker.requestMediaLibraryPermissionsAsync()
+    }
+
+    if (permission.granted === false) {
+      alert('Você precisa permitir o acesso à galeria. Por favor abra suas configurações do celular.')
+      return
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+      allowsEditing: true,
+      base64: true,
+    })
+    
+    console.log(result)
+
+    console.log(result.assets[0].uri)
+    return;
+  }
+
+  const launchCamera = async () => {
+    let permission = await ImagePicker.requestCameraPermissionsAsync()
+
+    while (permission.granted === false && permission.canAskAgain === true) {
+      alert('Por favor, permita o acesso à câmera.')
+      permission = await ImagePicker.requestCameraPermissionsAsync()
+    }
+
+    if (permission.granted === false) {
+      alert('Você precisa permitir o acesso à câmera. Por favor abra suas configurações do celular.')
+      return
+    }
+
+    result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+      allowsEditing: true,
     })
     setVideo(result)
-    console.log(video)
   }
-  
-  
+
+
+
+  useEffect(() => {
+    console.log(video)
+  }, [video])
+
   // ImagePicker.requestMediaLibraryPermissionsAsync()
   // ImagePicker.launchImageLibraryAsync()
   // ImagePicker.requestCameraPermissionsAsync()
@@ -93,7 +131,8 @@ export default function GalleryScreen() {
   return (
     <View style={{ flex: 1, padding: 10 }}>
       <Button title="Converter Vídeo para GIF" onPress={convertVideoToGif} />
-      <Button title="Abrir a câmera" onPress={launchCamera}/>
+      <Button title="Abrir a câmera" onPress={launchCamera} />
+      <Button title="Abrir galeria" onPress={launchGallery} />
 
       <ScrollView style={{ marginTop: 20 }}>
         {gifs.length > 0 ? (
@@ -109,7 +148,7 @@ export default function GalleryScreen() {
           <Text>Nenhum GIF encontrado</Text>
         )}
       </ScrollView>
-{/* Modal para exibição do GIF em tela cheia */}
+      {/* Modal para exibição do GIF em tela cheia */}
       <Modal visible={modalVisible} transparent={true} animationType="fade">
         <View style={styles.modalBackground}>
           <View style={styles.modalContainer}>
@@ -124,24 +163,5 @@ export default function GalleryScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  modalBackground: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContainer: {
-    width: '80%',
-    padding: 20,
-    backgroundColor: 'white',
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  modalImage: {
-    width: '100%',
-    height: 300,
-    resizeMode: 'contain',
-    marginBottom: 10,
-  },
-});
+export default GalleryScreen;
+//Style na pasta Styles (Patrick)
