@@ -3,10 +3,12 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
+import { StatusBar } from 'react-native';
+
+import LoginScreen from '../src/screens/LoginScreen';
 import HomeScreen from '../src/screens/HomeScreen';
 import GalleryScreen from '../src/screens/GalleryScreen';
-//import CameraScreen from '../src/screens/CameraScreen';
-import LoginScreen from '../src/screens/LoginScreen';
+import LogoutScreen from '../src/screens/LogoutScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -16,22 +18,23 @@ const TabNavigator = () => (
     <Tab.Screen 
       name="Home" 
       component={HomeScreen} 
-      options={{
-        tabBarIcon: ({ color }) => <Ionicons name="home" size={24} color={color} />,
-      }} 
+      options={{ 
+        tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} />,
+        tabBarLabel: () => null,
+        }} 
     />
     <Tab.Screen 
       name="Gallery" 
       component={GalleryScreen} 
       options={{
-        tabBarIcon: ({ color }) => <Ionicons name="image" size={24} color={color} />,
+        tabBarIcon: ({ color, size }) => <Ionicons name="image" size={size} color={color} />,
       }} 
     />
     <Tab.Screen 
-      name="Camera" 
-      component={CameraScreen} 
+      name="Logout" 
+      component={LogoutScreen} 
       options={{
-        tabBarIcon: ({ color }) => <Ionicons name="camera" size={24} color={color} />,
+        tabBarIcon: ({ color, size }) => <Ionicons name="log-out" size={size} color={color} />,
       }} 
     />
   </Tab.Navigator>
@@ -40,14 +43,18 @@ const TabNavigator = () => (
 const AppNavigator = () => {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Login">
+        <StatusBar 
+            barStyle="light-content"
+            backgroundColor="#6200EE"
+        />
+        <Stack.Navigator initialRouteName="Login">
         <Stack.Screen 
           name="Login" 
           component={LoginScreen} 
           options={{ headerShown: false }} 
         />
         <Stack.Screen 
-          name="Main" 
+          name="Home" 
           component={TabNavigator} 
           options={{ headerShown: false }} 
         />

@@ -1,53 +1,9 @@
-// import React, { useState, useEffect } from 'react';
-// import { View, Text, ScrollView, Image, Button, Modal } from 'react-native';
-// import RNFetchBlob from 'rn-fetch-blob';
-// import Video from 'react-native-video';
-
-// export default function GalleryScreen() {
-//   const [gifs, setGifs] = useState([]);
-//   const [modalVisible, setModalVisible] = useState(false);
-
-//   const convertVideoToGif = async () => {
-//     // colocar a logica de conversao  do video para gif
-//     const newGif = { uri: 'link-para-o-gif-gerado.gif' };
-//     setGifs([...gifs, newGif]);
-//   }; 
-//   const openModal = (gif) => {
-//     setSelectedGif(gif);
-//     setModalVisible(true);
-//   };
-
-//   const closeModal = () => {
-//     setModalVisible(false);
-//     setSelectedGif(null);
-//   };
-
-//   return (
-//     <View style={{ flex: 1, padding: 10 }}>
-//       <Button title="Converter Vídeo para GIF" onPress={convertVideoToGif} />
-//       <ScrollView style={{ marginTop: 20 }}>
-//         {gifs.length > 0 ? (
-//           gifs.map((gif, index) => (
-//             <Image
-//               key={index}
-//               source={{ uri: gif.uri }}
-//               style={{ width: 100, height: 100, marginBottom: 10 }}
-//             />
-//           ))
-//         ) : (
-//           <Text>Nenhum GIF encontrado</Text>
-//         )}
-//       </ScrollView>
-//     </View>
-//   );
-// }
-
-
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, Image, Button, Modal, TouchableOpacity, StyleSheet } from 'react-native';
 import * as ImagePicker from "expo-image-picker"
 import styles from '../../styles/StyleGalleryScreen';
-import { FFmpegKit, FFmpegKitConfig } from 'ffmpeg-kit-react-native';
+import { FFmpegKit, FFmpegKitConfig, ReturnCode } from 'ffmpeg-kit-react-native';
+import { BallIndicator } from 'react-native-indicators';
 
 export function GalleryScreen() {
   const [gifs, setGifs] = useState([
@@ -56,11 +12,40 @@ export function GalleryScreen() {
   ]);
   const [selectedGif, setSelectedGif] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
-  const [video, setVideo] = useState(null)
+  const [video, setVideo] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const convertVideoToGif = async () => {
-    const newGif = { uri: 'https://media.giphy.com/media/2A75RyXVzzSI2bx4Gj/giphy.gif' };
-    setGifs([...gifs, newGif]);
+  const convertVideoToGif = async (inputFile) => {
+    await FFmpegKitConfig.init()
+    //${FileSystem.documentDirectory}
+    const outputFile = `${inputFile.replace('.mp4','.gif')}`;
+    console.log('caminho; ', inputFile)
+    
+    try {
+      const convert = `-i ${inputFile} -vf "fps=10,scale=320:-1:flags=lanczos" -loop 0 ${outputFile}`;
+      setLoading(true);
+
+      FFmpegKit.execute(convert).then(async (session) => {
+        const codeReturn = session.getReturnCode()
+        setLoading(false);
+        if (ReturnCode.isSucess(codeReturn)) {
+          console.log('Convertido', outputFile)
+        } else {
+          console.log('Erro durante a conversão')
+        }
+        console.log('fail: ',await session.getFailStackTrace())
+      },
+      () => alert('Conversão falhou')).catch(e => console.log('Erro ao converter: ', e))
+    } catch (error) {
+      console.log('Erro ao converter: ', error)
+    } finally {
+      setLoading(false);
+    }
+    // return (
+    //   <View>
+    //     {loading && <ActivityIndicator size="large" color="#FF3403" />}
+    //   </View>
+    // );
   };
 
   const openModal = (gif) => {
@@ -91,10 +76,11 @@ export function GalleryScreen() {
       allowsEditing: true,
       base64: true,
     })
-    
+
     console.log(result)
 
     console.log(result.assets[0].uri)
+    convertVideoToGif(result.assets[0].uri)
     return;
   }
 
@@ -116,6 +102,7 @@ export function GalleryScreen() {
       allowsEditing: true,
     })
     setVideo(result)
+    convertVideoToGif(result.assets[0].uri)
   }
 
 
@@ -129,10 +116,18 @@ export function GalleryScreen() {
   // ImagePicker.requestCameraPermissionsAsync()
 
   return (
-    <View style={{ flex: 1, padding: 10 }}>
-      <Button title="Converter Vídeo para GIF" onPress={convertVideoToGif} />
-      <Button title="Abrir a câmera" onPress={launchCamera} />
-      <Button title="Abrir galeria" onPress={launchGallery} />
+    <>
+      <View style={{ flex: 1, padding: 10 }}>
+        {loading ? (
+          <BallIndicator size={30} color='#' />
+        ) : (
+          <>
+            <Button title="Abrir a câmera" onPress={launchCamera} />
+            <Button title="Abrir galeria" onPress={launchGallery} />
+          </>
+        )}
+        {loading && <Text>Convertendo vídeo para gif...</Text>}
+      </View>
 
       <ScrollView style={{ marginTop: 20 }}>
         {gifs.length > 0 ? (
@@ -148,6 +143,7 @@ export function GalleryScreen() {
           <Text>Nenhum GIF encontrado</Text>
         )}
       </ScrollView>
+
       {/* Modal para exibição do GIF em tela cheia */}
       <Modal visible={modalVisible} transparent={true} animationType="fade">
         <View style={styles.modalBackground}>
@@ -159,7 +155,7 @@ export function GalleryScreen() {
           </View>
         </View>
       </Modal>
-    </View>
+    </>
   );
 }
 
