@@ -22,6 +22,7 @@ export function GalleryScreen() {
     mediaTypes: ImagePicker.MediaTypeOptions.Videos,
     videoMaxDurationn: 10,
     quality: 0.1,
+    allowEditing: true,
   }
   
   const openModal = (gif) => {
@@ -37,20 +38,22 @@ export function GalleryScreen() {
   // const convertVideoToBase64 = async (videoPath) => {
   //   try {
   //     const base64 = await RNFS.readFile(videoPath, 'base64');
-  //     setVideo64(base64)
   //     return base64;
   //   } catch (error) {
-  //     console.error('Error converting image to base64:', error);
-  //     return null;
-  //   }
-  // };
-
-  const convertVideoToBase64 = async (fileUri) => {
-    try {
-      const base64Data = await FileSystem.readAsStringAsync(fileUri, {
-        encoding: FileSystem.EncodingType.Base64,
-      });
-      return base64Data;
+    //     console.error('Error converting image to base64:', error);
+    //     return null;
+    //   }
+    // };
+    
+    const convertVideoToBase64 = async (fileUri = '') => {
+      // console.log(fileUri.slice(0,fileUri.lastIndexOf('/')))
+      // FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync(fileUri.slice(0,fileUri.lastIndexOf('/')))
+      try {
+        const base64Data = await FileSystem.readAsStringAsync(fileUri, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+        setVideo64(base64Data)
+        return base64Data;
     } catch (error) {
       console.error('Error converting Video to base64:', error);
       return null;
@@ -71,10 +74,12 @@ export function GalleryScreen() {
     }
     
     const result = await ImagePicker.launchImageLibraryAsync(pickerOptions)
+    setVideo(result)
+
+    if (result.assets && !result.canceled) {
+      convertVideoToBase64(result.assets[0].uri)
+    }
     
-    console.log(result)
-    
-    console.log(result.assets[0].uri)
     return;
   }
 
@@ -91,16 +96,20 @@ export function GalleryScreen() {
       return
     }
 
-    result = await ImagePicker.launchCameraAsync(pickerOptions)
+    const result = await ImagePicker.launchCameraAsync(pickerOptions)
     setVideo(result)
-    convertVideoToBase64(result.assets[0].uri)
+
+    if (result.assets && !result.canceled) {
+      convertVideoToBase64(result.assets[0].uri)
+    }
   }
 
   useEffect(() => {
     console.log(video)
     console.log(video64)
   }, [video, video64])
-
+  
+  console.log(video64)
   // ImagePicker.requestMediaLibraryPermissionsAsync()
   // ImagePicker.launchImageLibraryAsync()
   // ImagePicker.requestCameraPermissionsAsync()
