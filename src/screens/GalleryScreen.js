@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, Image, Button, Modal, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, Image, Button, Modal, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
 import * as ImagePicker from "expo-image-picker"
 import styles from '../../styles/StyleGalleryScreen';
-import { FFmpegKit, FFmpegKitConfig, ReturnCode } from 'ffmpeg-kit-react-native';
 import { BallIndicator } from 'react-native-indicators';
+import * as FileSystem from 'expo-file-system';
+
 
 export function GalleryScreen() {
   const [gifs, setGifs] = useState([
@@ -13,74 +14,67 @@ export function GalleryScreen() {
   const [selectedGif, setSelectedGif] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [video, setVideo] = useState(null);
+  const [video64, setVideo64] = useState('')
   const [loading, setLoading] = useState(false);
-
-  const convertVideoToGif = async (inputFile) => {
-    await FFmpegKitConfig.init()
-    //${FileSystem.documentDirectory}
-    const outputFile = `${inputFile.replace('.mp4','.gif')}`;
-    console.log('caminho; ', inputFile)
-    
-    try {
-      const convert = `-i ${inputFile} -vf "fps=10,scale=320:-1:flags=lanczos" -loop 0 ${outputFile}`;
-      setLoading(true);
-
-      FFmpegKit.execute(convert).then(async (session) => {
-        const codeReturn = session.getReturnCode()
-        setLoading(false);
-        if (ReturnCode.isSucess(codeReturn)) {
-          console.log('Convertido', outputFile)
-        } else {
-          console.log('Erro durante a conversão')
-        }
-        console.log('fail: ',await session.getFailStackTrace())
-      },
-      () => alert('Conversão falhou')).catch(e => console.log('Erro ao converter: ', e))
-    } catch (error) {
-      console.log('Erro ao converter: ', error)
-    } finally {
-      setLoading(false);
-    }
-    // return (
-    //   <View>
-    //     {loading && <ActivityIndicator size="large" color="#FF3403" />}
-    //   </View>
-    // );
-  };
-
+  
+  const pickerOptions = {
+    base64: true,
+    mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+    videoMaxDurationn: 10,
+    quality: 0.1,
+  }
+  
   const openModal = (gif) => {
     setSelectedGif(gif);
     setModalVisible(true);
   };
-
+  
   const closeModal = () => {
     setModalVisible(false);
     setSelectedGif(null);
   };
+  
+  // const convertVideoToBase64 = async (videoPath) => {
+  //   try {
+  //     const base64 = await RNFS.readFile(videoPath, 'base64');
+  //     setVideo64(base64)
+  //     return base64;
+  //   } catch (error) {
+  //     console.error('Error converting image to base64:', error);
+  //     return null;
+  //   }
+  // };
 
+  const convertVideoToBase64 = async (fileUri) => {
+    try {
+      const base64Data = await FileSystem.readAsStringAsync(fileUri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+      return base64Data;
+    } catch (error) {
+      console.error('Error converting Video to base64:', error);
+      return null;
+    }
+  };
+  
   const launchGallery = async () => {
     let permission = await ImagePicker.requestMediaLibraryPermissionsAsync()
-
+    
     while (permission.granted === false && permission.canAskAgain === true) {
       alert('Por favor, permita o acesso à galeria.')
       permission = await ImagePicker.requestMediaLibraryPermissionsAsync()
     }
-
+    
     if (permission.granted === false) {
       alert('Você precisa permitir o acesso à galeria. Por favor abra suas configurações do celular.')
       return
     }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Videos,
-      allowsEditing: true,
-      base64: true,
-    })
-
+    
+    const result = await ImagePicker.launchImageLibraryAsync(pickerOptions)
+    
     console.log(result)
-
+    
     console.log(result.assets[0].uri)
-    convertVideoToGif(result.assets[0].uri)
     return;
   }
 
@@ -97,19 +91,15 @@ export function GalleryScreen() {
       return
     }
 
-    result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Videos,
-      allowsEditing: true,
-    })
+    result = await ImagePicker.launchCameraAsync(pickerOptions)
     setVideo(result)
-    convertVideoToGif(result.assets[0].uri)
+    convertVideoToBase64(result.assets[0].uri)
   }
-
-
 
   useEffect(() => {
     console.log(video)
-  }, [video])
+    console.log(video64)
+  }, [video, video64])
 
   // ImagePicker.requestMediaLibraryPermissionsAsync()
   // ImagePicker.launchImageLibraryAsync()
@@ -126,10 +116,9 @@ export function GalleryScreen() {
             <Button title="Abrir galeria" onPress={launchGallery} />
           </>
         )}
-        {loading && <Text>Convertendo vídeo para gif...</Text>}
       </View>
 
-      <ScrollView style={{ marginTop: 20 }}>
+      {/* <ScrollView style={{ marginTop: 20 }}>
         {gifs.length > 0 ? (
           gifs.map((gif, index) => (
             <TouchableOpacity key={index} onPress={() => openModal(gif)}>
@@ -142,8 +131,24 @@ export function GalleryScreen() {
         ) : (
           <Text>Nenhum GIF encontrado</Text>
         )}
-      </ScrollView>
+      </ScrollView> */}
 
+      <FlatList
+      data={gifs}
+      contentContainerStyle={{paddingVertical: 20}}
+      // style={}
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      overScrollMode='never'
+      renderItem={({item}) => (
+        <TouchableOpacity onPress={() => openModal(item)}>
+            <Image
+              source={{ uri: item.uri }}
+              style={{ width: 100, height: 100, marginBottom: 10 }}
+            />
+          </TouchableOpacity>
+      )}
+      />
       {/* Modal para exibição do GIF em tela cheia */}
       <Modal visible={modalVisible} transparent={true} animationType="fade">
         <View style={styles.modalBackground}>
@@ -157,7 +162,55 @@ export function GalleryScreen() {
       </Modal>
     </>
   );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 export default GalleryScreen;
 //Style na pasta Styles (Patrick)
+
+
+{/* <ScrollView style={{ flex: 1, padding: 10 }}>
+      <View>
+        {loading ? (
+          <BallIndicator size={30} color='#FF3403' />
+        ) : (
+          <>
+            <Button title="Abrir a câmera" onPress={launchCamera} />
+            <Button title="Abrir galeria" onPress={launchGallery} />
+          </>
+        )}
+        {loading && <Text>Convertendo vídeo para gif...</Text>}
+      </View>
+
+      <FlatList
+        data={gifs}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <TouchableOpacity onPress={() => openModal(item)}>
+            <Image
+              source={{ uri: item.uri }}
+              style={{ width: 100, height: 100, marginBottom: 10 }}
+            />
+          </TouchableOpacity>
+        )}
+        contentContainerStyle={{ paddingVertical: 20 }}
+        ListEmptyComponent={<Text>Nenhum GIF encontrado</Text>}
+        style={{ maxHeight: 400 }} // Definindo uma altura máxima para rolagem do FlatList dentro do ScrollView
+      /> */}
