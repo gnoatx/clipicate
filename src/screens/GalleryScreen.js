@@ -5,7 +5,6 @@ import styles from '../../styles/StyleGalleryScreen';
 import { BallIndicator } from 'react-native-indicators';
 import * as FileSystem from 'expo-file-system';
 
-
 export function GalleryScreen() {
   const [gifs, setGifs] = useState([
     { uri: 'https://media.giphy.com/media/3o6Mbfal9W7w1WgB9i/giphy.gif' }, // Exemplo de GIF
@@ -34,20 +33,8 @@ export function GalleryScreen() {
     setModalVisible(false);
     setSelectedGif(null);
   };
-  
-  // const convertVideoToBase64 = async (videoPath) => {
-  //   try {
-  //     const base64 = await RNFS.readFile(videoPath, 'base64');
-  //     return base64;
-  //   } catch (error) {
-    //     console.error('Error converting image to base64:', error);
-    //     return null;
-    //   }
-    // };
     
     const convertVideoToBase64 = async (fileUri = '') => {
-      // console.log(fileUri.slice(0,fileUri.lastIndexOf('/')))
-      // FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync(fileUri.slice(0,fileUri.lastIndexOf('/')))
       try {
         const base64Data = await FileSystem.readAsStringAsync(fileUri, {
           encoding: FileSystem.EncodingType.Base64,
@@ -109,11 +96,6 @@ export function GalleryScreen() {
     console.log(video64)
   }, [video, video64])
   
-  console.log(video64)
-  // ImagePicker.requestMediaLibraryPermissionsAsync()
-  // ImagePicker.launchImageLibraryAsync()
-  // ImagePicker.requestCameraPermissionsAsync()
-
   return (
     <>
       <View style={{ flex: 1, padding: 10 }}>

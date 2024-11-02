@@ -24,10 +24,10 @@ app.post('/login', async (req, res) => {
     if (result.rows.length > 0) {
       res.json({ success: true });
     } else {
-      res.json({ success: false });
+      res.json({ success: false, message: 'Credenciais inválidas' });
     }
   } catch (err) {
-    console.error(err);
+    console.error('Erro ao conectar ao banco de dados:', err);
     res.status(500).send('Server error');
   }
 });

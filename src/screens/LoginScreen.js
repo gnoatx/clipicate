@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button } from 'react-native';
+import { View, Text, TextInput, Button, Image, TouchableOpacity } from 'react-native';
+import Styles from '../../styles/StyleLoginScreen';
 
 export default function LoginScreen({ navigation }) {
   const [username, setUsername] = useState('');
@@ -14,22 +15,26 @@ export default function LoginScreen({ navigation }) {
   };
 
   return (
-    <View style={{ flex: 1, justifyContent: 'center', padding: 20 }}>
-      <Text>Login</Text>
+    <View style={Styles.container}>
+      <Image source={require('../../assets/baixados.png')} style={Styles.image} />
+      <Text style={Styles.title}>Transforme Momentos em GIFs!</Text>
+      <Text style={Styles.title}>Login</Text>
       <TextInput
         placeholder="Usuário"
         value={username}
         onChangeText={setUsername}
-        style={{ borderWidth: 1, padding: 10, marginBottom: 10 }}
+        style={Styles.input}
       />
       <TextInput
         placeholder="Senha"
         value={password}
         secureTextEntry
         onChangeText={setPassword}
-        style={{ borderWidth: 1, padding: 10, marginBottom: 10 }}
+        style={Styles.input}
       />
-      <Button title="Entrar" onPress={handleLogin} />
+      <TouchableOpacity style={Styles.button} onPress={handleLogin}>
+        <Text style={Styles.buttonText}>Entrar</Text>
+      </TouchableOpacity>
     </View>
   );
 }
