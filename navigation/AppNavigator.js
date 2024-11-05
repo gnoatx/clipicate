@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect, useRef} from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'react-native';
+import * as Animatable from 'react-native-animatable';
 
 import LoginScreen from '../src/screens/LoginScreen';
 import HomeScreen from '../src/screens/HomeScreen';
@@ -13,28 +14,48 @@ import LogoutScreen from '../src/screens/LogoutScreen';
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
+const TabIcon = ({ name, color, size, focused }) => {
+  const iconRef = useRef(null);
+
+  useEffect(() => {
+    if (focused) {
+      iconRef.current?.animate({ 
+        0: { scale: 1.5, rotate: '100deg' }, 
+        1: { scale: 1, rotate: '360deg' } 
+      });
+    } else {
+      iconRef.current?.animate({ 
+        0: { scale: 1.5, rotate: '360deg' }, 
+        1: { scale: 1, rotate: '360deg' } 
+      });
+    }
+  }, [focused]);
+  return (
+    <Animatable.View ref={iconRef} duration={1000}>
+      <Ionicons name={name} size={size} color={color} />
+    </Animatable.View>
+  );
+};
+
 const TabNavigator = () => (
   <Tab.Navigator>
     <Tab.Screen 
       name="Home" 
       component={HomeScreen} 
       options={{ 
-        tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} />,
+        tabBarIcon: ({ color, size, focused }) => (
+          <TabIcon name="home" color={color} size={size} focused={focused} />
+        ),
         tabBarLabel: () => null,
       }} 
     />
     <Tab.Screen 
-      name="Gallery" 
-      component={GalleryScreen} 
-      options={{
-        tabBarIcon: ({ color, size }) => <Ionicons name="image" size={size} color={color} />,
-      }} 
-    />
-    <Tab.Screen 
-      name="Logout" 
-      component={LogoutScreen} 
-      options={{
-        tabBarIcon: ({ color, size }) => <Ionicons name="log-out" size={size} color={color} />,
+       name="Gallery" 
+       component={GalleryScreen} 
+       options={{
+        tabBarIcon: ({ color, size, focused }) => (
+          <TabIcon name="image" color={color} size={size} focused={focused} />
+        ),
       }} 
     />
   </Tab.Navigator>
@@ -58,6 +79,9 @@ const AppNavigator = () => {
           component={TabNavigator} 
           options={{ headerShown: false }} 
         />
+         <Stack.Screen 
+          name="LogoutScreen" 
+          component={LogoutScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
