@@ -1,4 +1,6 @@
-const { Pool } = require('pg');
+import { Pool } from 'pg'
+
+// const { Pool } = require('pg');
 require('dotenv').config();
 
 const pool = new Pool({
@@ -8,5 +10,7 @@ const pool = new Pool({
     password: process.env.DB_PASSWORD,
     port: process.env.DB_PORT,
 });
+
+pool.connect();
 
 module.exports = pool;

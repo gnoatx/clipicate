@@ -1,15 +1,28 @@
-import React, { useEffect, useRef} from 'react';
+import React, { useEffect, useRef } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
-import { StatusBar } from 'react-native';
+import { StatusBar, View, Text, Button, Alert } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 
 import LoginScreen from '../src/screens/LoginScreen';
 import HomeScreen from '../src/screens/HomeScreen';
 import GalleryScreen from '../src/screens/GalleryScreen';
 import LogoutScreen from '../src/screens/LogoutScreen';
+
+const ProfileScreen = ({ navigation }) => {
+  const handleEditProfile = () => {
+    Alert.alert('Editar Cadastro', 'Aqui será a tela para editar o cadastro.');
+  };
+
+  return (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Text>Perfil de Usuário</Text>
+      <Button title="Editar Cadastro" onPress={handleEditProfile} />
+    </View>
+  );
+};
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -30,6 +43,7 @@ const TabIcon = ({ name, color, size, focused }) => {
       });
     }
   }, [focused]);
+
   return (
     <Animatable.View ref={iconRef} duration={1000}>
       <Ionicons name={name} size={size} color={color} />
@@ -46,15 +60,24 @@ const TabNavigator = () => (
         tabBarIcon: ({ color, size, focused }) => (
           <TabIcon name="home" color={color} size={size} focused={focused} />
         ),
-        tabBarLabel: () => null,
+
       }} 
     />
     <Tab.Screen 
-       name="Gallery" 
-       component={GalleryScreen} 
-       options={{
+      name="Gallery" 
+      component={GalleryScreen} 
+      options={{
         tabBarIcon: ({ color, size, focused }) => (
           <TabIcon name="image" color={color} size={size} focused={focused} />
+        ),
+      }} 
+    />
+    <Tab.Screen 
+      name="Profile" 
+      component={ProfileScreen} 
+      options={{
+        tabBarIcon: ({ color, size, focused }) => (
+          <TabIcon name="person" color={color} size={size} focused={focused} />
         ),
       }} 
     />
@@ -64,11 +87,11 @@ const TabNavigator = () => (
 const AppNavigator = () => {
   return (
     <NavigationContainer>
-        <StatusBar 
-            barStyle="light-content"
-            backgroundColor="#6200EE"
-        />
-        <Stack.Navigator initialRouteName="Login">
+      <StatusBar 
+        barStyle="light-content"
+        backgroundColor="#6200EE"
+      />
+      <Stack.Navigator initialRouteName="Login">
         <Stack.Screen 
           name="Login" 
           component={LoginScreen} 
@@ -79,7 +102,7 @@ const AppNavigator = () => {
           component={TabNavigator} 
           options={{ headerShown: false }} 
         />
-         <Stack.Screen 
+        <Stack.Screen 
           name="LogoutScreen" 
           component={LogoutScreen} />
       </Stack.Navigator>

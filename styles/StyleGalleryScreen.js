@@ -1,77 +1,75 @@
 import { StyleSheet } from 'react-native';
 
-const styles = StyleSheet.create({
+const Styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 10,
-    backgroundColor: '#f5f5f5',
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginVertical: 10,
-  },
-  customButton: {
-    backgroundColor: '#FF6F61',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    alignItems: 'center',
-    width: '48%',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
+    backgroundColor: '#f0f0f0',
   },
   gifListContainer: {
-    paddingVertical: 20,
-    paddingHorizontal: 5,
+    paddingBottom: 20,
   },
   gifContainer: {
-    marginHorizontal: 5,
+    margin: 5,
+    borderRadius: 8,
+    overflow: 'hidden',
+    backgroundColor: '#fff',
+    elevation: 5, 
   },
   gifImage: {
     width: 100,
     height: 100,
-    borderRadius: 10,
+    borderRadius: 8,
   },
   emptyText: {
     textAlign: 'center',
-    fontSize: 16,
+    fontSize: 18,
     color: '#888',
   },
   modalBackground: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
   },
   modalContainer: {
     backgroundColor: '#fff',
     padding: 20,
-    borderRadius: 10,
-    alignItems: 'center',
+    borderRadius: 8,
     width: '80%',
+    alignItems: 'center',
   },
   modalImage: {
     width: '100%',
-    height: 200,
-    borderRadius: 10,
-    marginBottom: 20,
+    height: 300,
+    resizeMode: 'contain',
   },
   closeButton: {
-    backgroundColor: '#FF6F61',
+    marginTop: 10,
     padding: 10,
+    backgroundColor: '#FF3403',
     borderRadius: 8,
-    alignItems: 'center',
-    width: '50%',
   },
   closeButtonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginVertical: 10,
+  },
+  customButton: {
+    padding: 10,
+    backgroundColor: '#FF3403',
+    borderRadius: 8,
+    width: 150,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
   },
 });
 
-export default styles;
+export default Styles;
