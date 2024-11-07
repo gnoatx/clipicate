@@ -9,7 +9,7 @@ const pickerOptions = {
     allowEditing: true,
 };
 
-const convertVideoToBase64 = async (fileUri = '') => {
+const convertVideoToBase64 = async (fileUri = '', setIsLoading) => {
     setIsLoading(true);
     try {
         const base64Data = await FileSystem.readAsStringAsync(fileUri, {
@@ -24,30 +24,57 @@ const convertVideoToBase64 = async (fileUri = '') => {
     }
 };
 
-const launchGallery = async () => {
-    let permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permission.granted) {
-        return alert('Você precisa permitir o acesso à galeria.');
+// const launchGallery = async () => {
+//     let permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+//     if (!permission.granted) {
+//         return alert('Você precisa permitir o acesso à galeria.');
+//     }
+
+//     const result = await ImagePicker.launchImageLibraryAsync(pickerOptions);
+
+//     if (result.assets && !result.canceled) {
+//         return result.assets[0].uri;
+//     }
+//     return null
+// };
+
+// const launchCamera = async () => {
+//     let permission = await ImagePicker.requestCameraPermissionsAsync();
+//     if (!permission.granted) {
+//         return alert('Você precisa permitir o acesso à câmera.');
+//     }
+
+//     const result = await ImagePicker.launchCameraAsync(pickerOptions);
+
+//     if (result.assets && !result.canceled) {
+//         return result.assets[0].uri;
+//     }
+//     return null
+// };
+
+export const launchImagePicker = async (isCamera) => {
+    let permission = isCamera ?
+        await ImagePicker.requestCameraPermissionsAsync() :
+        await ImagePicker.requestMediaLibraryPermissionsAsync()
+
+    while (!permission.granted) {
+        if (!permission.canAskAgain) {
+            return alert(`Você precisa permitir acesso à ${isCamera ? 'câmera' : 'galeria'}.\nAbra as configurações e dê acesso ao aplicativo Clipicate.`)
+        }
+        alert(`Por favor, permita acesso à ${isCamera ? 'câmera' : 'galeria'}.`)
+        permission = isCamera ?
+            await ImagePicker.requestCameraPermissionsAsync() :
+            await ImagePicker.requestMediaLibraryPermissionsAsync()
+        if (permission.granted) break
     }
 
-    const result = await ImagePicker.launchImageLibraryAsync(pickerOptions);
+    const result = isCamera ?
+        await ImagePicker.launchCameraAsync(pickerOptions) :
+        await ImagePicker.launchImageLibraryAsync(pickerOptions)
 
     if (result.assets && !result.canceled) {
         return result.assets[0].uri;
     }
+
     return null
-};
-
-const launchCamera = async () => {
-    let permission = await ImagePicker.requestCameraPermissionsAsync();
-    if (!permission.granted) {
-        return alert('Você precisa permitir o acesso à câmera.');
-    }
-
-    const result = await ImagePicker.launchCameraAsync(pickerOptions);
-
-    if (result.assets && !result.canceled) {
-        return result.assets[0].uri;
-    }
-    return null
-};
+}

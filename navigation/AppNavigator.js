@@ -3,23 +3,29 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
-import { StatusBar, View, Text, Button, Alert } from 'react-native';
+import { StatusBar, View, Text, Button, Alert, Pressable } from 'react-native';
 import * as Animatable from 'react-native-animatable';
+import { Fill, BackdropBlur } from "@shopify/react-native-skia";
+import { BlurView } from 'expo-blur';
 
 import LoginScreen from '../src/screens/LoginScreen';
 import HomeScreen from '../src/screens/HomeScreen';
 import GalleryScreen from '../src/screens/GalleryScreen';
 import LogoutScreen from '../src/screens/LogoutScreen';
+import PreviewScreen from '../src/screens/PreviewScreen'
+import FeedScreen from '../src/screens/FeedScreen';
 
-const ProfileScreen = ({ navigation }) => {
-  const handleEditProfile = () => {
+import { styles as globalStyles } from '../src/globalStyles';
+
+const OptionsScreen = ({ navigation }) => {
+  const handleEditOptions = () => {
     Alert.alert('Editar Cadastro', 'Aqui será a tela para editar o cadastro.');
   };
 
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
       <Text>Perfil de Usuário</Text>
-      <Button title="Editar Cadastro" onPress={handleEditProfile} />
+      <Button title="Editar Configurações" onPress={handleEditOptions} />
     </View>
   );
 };
@@ -33,13 +39,13 @@ const TabIcon = ({ name, color, size, focused }) => {
   useEffect(() => {
     if (focused) {
       iconRef.current?.animate({ 
-        0: { scale: 1.5, rotate: '100deg' }, 
+        0: { scale: 1.5, rotate: '0deg' }, 
         1: { scale: 1, rotate: '360deg' } 
       });
     } else {
       iconRef.current?.animate({ 
         0: { scale: 1.5, rotate: '360deg' }, 
-        1: { scale: 1, rotate: '360deg' } 
+        1: { scale: 1, rotate: '0deg' } 
       });
     }
   }, [focused]);
@@ -52,7 +58,21 @@ const TabIcon = ({ name, color, size, focused }) => {
 };
 
 const TabNavigator = () => (
-  <Tab.Navigator>
+  <Tab.Navigator
+    screenOptions={{
+      tabBarStyle: {
+        position: 'absolute',
+        overflow: 'visible',
+        backgroundColor: 'transparent',
+        height: 100,
+        
+      },
+      tabBarShowLabel: false,
+      tabBarBackground: () => (
+        <BlurView tint="light" intensity={100} experimentalBlurMethod='dimezisBlurView'/>
+      )
+    }}
+  >
     <Tab.Screen 
       name="Home" 
       component={HomeScreen} 
@@ -60,8 +80,23 @@ const TabNavigator = () => (
         tabBarIcon: ({ color, size, focused }) => (
           <TabIcon name="home" color={color} size={size} focused={focused} />
         ),
+        tabBarIconStyle: {
+          bottom: 0,
+          height: 50,
+        }
 
       }} 
+    />
+    <Tab.Screen
+      name="Camera"
+      component={PreviewScreen}
+      options={{
+        tabBarItemStyle: globalStyles.cameraButton,
+        tabBarIconStyle: {
+          opacity: 0,
+        }
+        
+      }}
     />
     <Tab.Screen 
       name="Gallery" 
@@ -73,11 +108,11 @@ const TabNavigator = () => (
       }} 
     />
     <Tab.Screen 
-      name="Profile" 
-      component={ProfileScreen} 
+      name="Feeds" 
+      component={FeedScreen} 
       options={{
         tabBarIcon: ({ color, size, focused }) => (
-          <TabIcon name="person" color={color} size={size} focused={focused} />
+          <TabIcon name="logo-octocat" color={color} size={size} focused={focused} />
         ),
       }} 
     />
@@ -91,7 +126,7 @@ const AppNavigator = () => {
         barStyle="light-content"
         backgroundColor="#6200EE"
       />
-      <Stack.Navigator initialRouteName="Login">
+      <Stack.Navigator initialRouteName="Home">
         <Stack.Screen 
           name="Login" 
           component={LoginScreen} 
@@ -104,7 +139,12 @@ const AppNavigator = () => {
         />
         <Stack.Screen 
           name="LogoutScreen" 
-          component={LogoutScreen} />
+          component={LogoutScreen} 
+        />
+        <Stack.Screen 
+          name="Feed" 
+          component={FeedScreen} 
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

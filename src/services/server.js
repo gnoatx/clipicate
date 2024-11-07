@@ -1,37 +1,43 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const { Pool } = require('pg');
+const cors = require('cors');
+require('dotenv').config();
 
 const app = express();
-const port = 8081;
+app.use(cors());
+app.use(express.json());
 
 const pool = new Pool({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'gif_database',
-  password: '123456',
-  port: 5432,
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASS,
+  port: process.env.DB_PORT,
 });
-
-app.use(cors());
-app.use(bodyParser.json());
 
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
   try {
-    const result = await pool.query('SELECT * FROM users WHERE username = $1 AND password = $2', [username, password]);
-    if (result.rows.length > 0) {
-      res.json({ success: true });
+    const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
+    const user = result.rows[0];
+
+    if (user && await bcrypt.compare(password, user.password)) {
+      const token = jwt.sign({ id: user.id, username: user.username }, process.env.JWT_SECRET, {
+        expiresIn: '1h',
+      });
+      res.json({ token });
     } else {
-      res.json({ success: false, message: 'Credenciais inválidas' });
+      res.status(401).json({ message: 'Credenciais inválidas' });
     }
-  } catch (err) {
-    console.error('Erro ao conectar ao banco de dados:', err);
-    res.status(500).send('Server error');
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Erro interno do servidor' });
   }
 });
 
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+const PORT = process.env.PORT || 8081;
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
 });

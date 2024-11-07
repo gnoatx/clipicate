@@ -77,5 +77,58 @@ const localStyles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
   },
+  feedItem: {
+    marginBottom: 20,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 15,
+    marginHorizontal: 10,
+  },
+  feedImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 10,
+  },
+  caption: {
+    fontSize: 14,
+    color: '#555',
+    marginTop: 50,
+  },
+  actions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
+  },
+  likeButton: {
+    color: '#ff5757',
+    fontSize: 14,
+  },
+  shareButton: {
+    color: '#007bff',
+    fontSize: 14,
+  },
+  commentContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  commentInput: {
+    flex: 1,
+    height: 40,
+    borderColor: '#ddd',
+    borderWidth: 1,
+    borderRadius: 20,
+    paddingHorizontal: 10,
+    marginRight: 10,
+  },
+  commentButtonText: {
+    color: '#007bff',
+    fontSize: 14,
+  },
+  commentText: {
+    fontSize: 12,
+    color: '#333',
+    paddingVertical: 3,
+  },
 });
 export default localStyles;

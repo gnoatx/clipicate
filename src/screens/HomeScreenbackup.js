@@ -79,8 +79,52 @@ export default function HomeScreen({ navigation }) {
         showsHorizontalScrollIndicator={false}
       />
 
-      
+      <TouchableOpacity
+        style={localStyles.galleryButton}
+        onPress={() => navigation.navigate('Feed')}
+        >
+        <Text style={localStyles.galleryButtonText}>Ir para Feeds</Text>
+      </TouchableOpacity>
 
+      <Text style={localStyles.sectionTitle}>Feeds</Text>
+      <FlatList
+        data={images}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <View style={localStyles.feedItem}>
+            <Image source={{ uri: item.uri }} style={localStyles.feedImage} />
+            <Text style={localStyles.caption}>{item.caption}</Text>
+            <View style={localStyles.actions}>
+              <TouchableOpacity onPress={() => handleLike(item.id)}>
+                <Text style={localStyles.likeButton}>Curtir ({item.likes})</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => handleShare(item.uri)}>
+                <Text style={localStyles.shareButton}>Compartilhar</Text>
+              </TouchableOpacity>
+            </View>
+
+            <FlatList
+              data={item.comments}
+              keyExtractor={(comment, index) => index.toString()}
+              renderItem={({ item }) => <Text style={localStyles.commentText}>- {item}</Text>}
+            />
+            <View style={localStyles.commentContainer}>
+              <TextInput
+                style={localStyles.commentInput}
+                placeholder="Escreva um comentário..."
+                value={newComment}
+                onChangeText={setNewComment}
+                onSubmitEditing={() => handleComment(item.id)}
+              />
+              <TouchableOpacity onPress={() => handleComment(item.id)}>
+                <Text style={localStyles.commentButtonText}>Comentar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+        contentContainerStyle={localStyles.feedList}
+        showsVerticalScrollIndicator={false}
+      />
     </View>
   );
 }
