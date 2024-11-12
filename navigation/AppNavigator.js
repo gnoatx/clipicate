@@ -5,8 +5,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar, View, Text, Button, Alert, Pressable } from 'react-native';
 import * as Animatable from 'react-native-animatable';
-import { Fill, BackdropBlur } from "@shopify/react-native-skia";
-import { BlurView } from 'expo-blur';
+import { launchImagePicker } from '../src/services/imagePicker';
 
 import LoginScreen from '../src/screens/LoginScreen';
 import HomeScreen from '../src/screens/HomeScreen';
@@ -57,20 +56,21 @@ const TabIcon = ({ name, color, size, focused }) => {
   );
 };
 
+
+
 const TabNavigator = () => (
   <Tab.Navigator
     screenOptions={{
       tabBarStyle: {
         position: 'absolute',
         overflow: 'visible',
-        backgroundColor: 'transparent',
-        height: 100,
-        
+        backgroundColor: "#F0E8E0",
+        height: 50,
       },
       tabBarShowLabel: false,
-      tabBarBackground: () => (
-        <BlurView tint="light" intensity={100} experimentalBlurMethod='dimezisBlurView'/>
-      )
+      // tabBarBackground: () => (
+      //   <BlurView tint='light' intensity={100} experimentalBlurMethod='dimezisBlurView'/>
+      // )
     }}
   >
     <Tab.Screen 
@@ -91,11 +91,37 @@ const TabNavigator = () => (
       name="Camera"
       component={PreviewScreen}
       options={{
-        tabBarItemStyle: globalStyles.cameraButton,
-        tabBarIconStyle: {
-          opacity: 0,
-        }
-        
+        // tabBarItemStyle: globalStyles.cameraButton,
+        // tabBarIconStyle: {
+        //   opacity: 0,
+        // }
+        tabBarButton: () => (
+          <Pressable
+            style={{
+              backgroundColor: "#F0E8E0",
+              width: 75,
+              height: 75,
+              marginTop: -25,
+              position: "relative",
+              borderRadius: 99,
+              borderColor: "#FF3403",
+              borderWidth: 5,
+              display: "flex",
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+            onPress={() => launchImagePicker(true)}
+          >
+            <View
+              style={{
+                backgroundColor: "#FF3403",
+                width: 55,
+                height: 55,
+                borderRadius: 99,
+              }}
+            ></View>
+          </Pressable>
+        )
       }}
     />
     <Tab.Screen 
@@ -124,7 +150,7 @@ const AppNavigator = () => {
     <NavigationContainer>
       <StatusBar 
         barStyle="light-content"
-        backgroundColor="#6200EE"
+        backgroundColor="#FF3403"
       />
       <Stack.Navigator initialRouteName="Home">
         <Stack.Screen 

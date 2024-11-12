@@ -2,12 +2,14 @@ import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
     cameraButton: {
-        height: 30,
+        height: 25,
         aspectRatio: 1,
         backgroundColor: '#FF3403',
         borderRadius: 99,
         borderWidth: 5,
         borderColor: '#ffffff',
+        position: 'relative',
+        bottom: 0,
     }
 })
 
