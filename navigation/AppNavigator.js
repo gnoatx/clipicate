@@ -87,6 +87,15 @@ const TabNavigator = () => (
 
       }} 
     />
+    <Tab.Screen 
+      name="Gallery" 
+      component={GalleryScreen} 
+      options={{
+        tabBarIcon: ({ color, size, focused }) => (
+          <TabIcon name="image" color={color} size={size} focused={focused} />
+        ),
+      }} 
+    />
     <Tab.Screen
       name="Camera"
       component={PreviewScreen}
@@ -110,7 +119,10 @@ const TabNavigator = () => (
               alignItems: 'center',
               justifyContent: 'center'
             }}
-            onPress={() => launchImagePicker(true)}
+            onPress={() => {
+              const recordedVideo = launchImagePicker(true)
+              
+            }}
           >
             <View
               style={{
@@ -124,15 +136,7 @@ const TabNavigator = () => (
         )
       }}
     />
-    <Tab.Screen 
-      name="Gallery" 
-      component={GalleryScreen} 
-      options={{
-        tabBarIcon: ({ color, size, focused }) => (
-          <TabIcon name="image" color={color} size={size} focused={focused} />
-        ),
-      }} 
-    />
+
     <Tab.Screen 
       name="Feeds" 
       component={FeedScreen} 

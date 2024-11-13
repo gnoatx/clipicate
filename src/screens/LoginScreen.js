@@ -6,11 +6,21 @@ export default function LoginScreen({ navigation }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = () => {
-    if (username && password) {
-      navigation.navigate('Home');
-    } else {
-      alert('Por favor, insira as credenciais.');
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post('http://localhost:8081/api/login', {
+        username,
+        password,
+      });
+
+      if (response.data.success) {
+        Alert.alert('Login bem-sucedido!', 'Bem-vindo!');
+      } else {
+        Alert.alert('Erro', 'Usuário ou senha incorretos');
+      }
+    } catch (error) {
+      Alert.alert('Erro', 'Não foi possível conectar ao servidor');
+      console.error(error);
     }
   };
 

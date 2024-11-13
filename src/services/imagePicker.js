@@ -52,7 +52,7 @@ const convertVideoToBase64 = async (fileUri = '', setIsLoading) => {
 //     return null
 // };
 
-export const launchImagePicker = async (isCamera) => {
+export const launchImagePicker = async (isCamera = false) => {
     let permission = isCamera ?
         await ImagePicker.requestCameraPermissionsAsync() :
         await ImagePicker.requestMediaLibraryPermissionsAsync()

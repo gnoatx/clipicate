@@ -49,6 +49,26 @@ export default function HomeScreen({ navigation }) {
       console.error('Erro ao compartilhar:', error);
     }
   };
+  const [gifs, setGifs] = useState([
+    { id: '1', uri: 'https://th.bing.com/th/id/R.6dcf3a15e0b17ea5742892e4ae220b4a?rik=O7xK9qmJYBMkDQ&pid=ImgRaw&r=0' }, 
+    { id: '2', uri: 'https://media1.tenor.com/m/qs5pVKHIyTUAAAAd/kakashi-hatake-kakashi.gif' }, 
+    { id: '3', uri: 'https://media1.tenor.com/m/o7ZwUccm6OAAAAAd/x.gif' }, 
+    { id: '4', uri: 'https://media1.tenor.com/m/5el2GMHhUiQAAAAd/elon-musk-x-app.gif' }, 
+    { id: '5', uri: 'https://media1.tenor.com/m/hBwkISiqNI0AAAAd/shura-hiwa-lamer.gif' }, 
+  ]);
+
+  const [selectedGif, setSelectedGif] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const openModal = (gif) => {
+    setSelectedGif(gif);
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+    setSelectedGif(null);
+  };
 
   return (
     <View style={localStyles.container}>
@@ -78,53 +98,14 @@ export default function HomeScreen({ navigation }) {
         contentContainerStyle={localStyles.gifList}
         showsHorizontalScrollIndicator={false}
       />
+      
+      
 
-      <TouchableOpacity
-        style={localStyles.galleryButton}
-        onPress={() => navigation.navigate('Feed')}
-        >
-        <Text style={localStyles.galleryButtonText}>Ir para Feeds</Text>
-      </TouchableOpacity>
+      
+      
 
-      <Text style={localStyles.sectionTitle}>Feeds</Text>
-      <FlatList
-        data={images}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={localStyles.feedItem}>
-            <Image source={{ uri: item.uri }} style={localStyles.feedImage} />
-            <Text style={localStyles.caption}>{item.caption}</Text>
-            <View style={localStyles.actions}>
-              <TouchableOpacity onPress={() => handleLike(item.id)}>
-                <Text style={localStyles.likeButton}>Curtir ({item.likes})</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleShare(item.uri)}>
-                <Text style={localStyles.shareButton}>Compartilhar</Text>
-              </TouchableOpacity>
-            </View>
+      
 
-            <FlatList
-              data={item.comments}
-              keyExtractor={(comment, index) => index.toString()}
-              renderItem={({ item }) => <Text style={localStyles.commentText}>- {item}</Text>}
-            />
-            <View style={localStyles.commentContainer}>
-              <TextInput
-                style={localStyles.commentInput}
-                placeholder="Escreva um comentário..."
-                value={newComment}
-                onChangeText={setNewComment}
-                onSubmitEditing={() => handleComment(item.id)}
-              />
-              <TouchableOpacity onPress={() => handleComment(item.id)}>
-                <Text style={localStyles.commentButtonText}>Comentar</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
-        contentContainerStyle={localStyles.feedList}
-        showsVerticalScrollIndicator={false}
-      />
     </View>
   );
 }
