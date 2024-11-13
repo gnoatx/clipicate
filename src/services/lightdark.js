@@ -1,43 +1,54 @@
-import React, { useState } from 'react';
-import { View, Text, Switch, StyleSheet, useColorScheme } from 'react-native';
+import React, { useState } from "react";
+import { View, Text, StyleSheet, Switch, useColorScheme } from "react-native";
 
-export default function App() {
-  // Detecta o tema do sistema (claro ou escuro)
-  const systemTheme = useColorScheme();
-  // Estado para alternância manual
-  const [isDarkMode, setIsDarkMode] = useState(systemTheme === 'dark');
+const lightdark= () => {
+  const systemColorScheme = useColorScheme(); // Detecção automática de tema do sistema
+  const [isDarkMode, setIsDarkMode] = useState(systemColorScheme === "dark");
 
-  // Alterna entre claro e escuro manualmente
-  const toggleTheme = () => setIsDarkMode(!isDarkMode);
+  const toggleSwitch = () => setIsDarkMode((previousState) => !previousState);
 
-  // Define estilos dependendo do modo
-  const themeStyles = isDarkMode ? styles.dark : styles.light;
+  const styles = isDarkMode ? darkTheme : lightTheme;
 
   return (
-    <View style={[styles.container, themeStyles]}>
-      <Text style={[styles.text, themeStyles]}>Modo {isDarkMode ? 'Escuro' : 'Claro'}</Text>
-      <Switch value={isDarkMode} onValueChange={toggleTheme} />
+    <View style={styles.container}>
+      <Text style={styles.text}>Modo {isDarkMode ? "Escuro" : "Claro"}</Text>
+      <Switch onValueChange={toggleSwitch} value={isDarkMode} />
     </View>
   );
-}
+};
 
-const styles = StyleSheet.create({
+const lightTheme = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
+    backgroundColor: "#ffffff",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  switchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    margin: 20,
   },
   text: {
-    fontSize: 24,
-    marginBottom: 20,
+    color: "#000000",
   },
-  light: {
-    backgroundColor: '#FFFFFF',
-    color: '#000000',
+});
+
+const darkTheme = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#000000",
+    alignItems: "center",
+    justifyContent: "center",
   },
-  dark: {
-    backgroundColor: '#000000',
-    color: '#FFFFFF',
+  switchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    margin: 20,
+  },
+  text: {
+    color: "#ffffff",
   },
 });
