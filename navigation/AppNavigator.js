@@ -58,7 +58,14 @@ const TabIcon = ({ name, color, size, focused }) => {
 
 
 
-const TabNavigator = () => (
+const TabNavigator = () => {
+
+  function handleCamera() {
+    const recordedVideo = launchImagePicker(true)
+
+  }
+
+  return (
   <Tab.Navigator
     screenOptions={{
       tabBarStyle: {
@@ -119,10 +126,7 @@ const TabNavigator = () => (
               alignItems: 'center',
               justifyContent: 'center'
             }}
-            onPress={() => {
-              const recordedVideo = launchImagePicker(true)
-              
-            }}
+            onPress={handleCamera}
           >
             <View
               style={{
@@ -147,7 +151,7 @@ const TabNavigator = () => (
       }} 
     />
   </Tab.Navigator>
-);
+)};
 
 const AppNavigator = () => {
   return (

@@ -109,3 +109,189 @@ export default function HomeScreen({ navigation }) {
     </View>
   );
 }
+
+
+
+
+
+
+
+
+import React, { useState } from 'react';
+import { View, Text, Image, ImageBackground, TouchableOpacity, FlatList, Modal, StyleSheet, Switch, useColorScheme, Alert } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { BallIndicator } from 'react-native-indicators';
+import localStyles from '../../styles/StyleHomeScreen';
+
+export default function HomeScreen({ navigation }) {
+  const systemColorScheme = useColorScheme();
+  const [isDarkMode, setIsDarkMode] = useState(systemColorScheme === 'dark');
+
+  const user = {
+    name: 'João João',
+    photo: 'https://th.bing.com/th/id/OIP.dHTpXsUFGaLoDQJWZzPUkgHaHE?w=960&h=917&rs=1&pid=ImgDetMain',
+    gifs: [
+      'https://i.pinimg.com/originals/95/bc/de/95bcdeda8fd273fd794d4bbbf715f7fe.gif',
+      'https://3.bp.blogspot.com/-6XpCCjTmRu0/UmXUTg34KlI/AAAAAAAAADkE/lnQ47XMgcz0/s1600/Gif_animado_para_orkut9xgoi8t1.gif',
+
+'https://2.bp.blogspot.com/-vQF_6LCIeaA/V5vSWrsvhEI/AAAAAAAAK9g/-4tcqCQBkOgJw6qHMZAmMcXdLS7tNHLGQCLcB/s1600/gifs+animados+2.gif',
+      'https://support.discord.com/hc/user_images/IeJrMGtT1V3y96nC9MPfvQ.gif',
+    ],
+  };
+
+  const [gifs, setGifs] = useState([]);
+  const [selectedGif, setSelectedGif] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showGifs, setShowGifs] = useState(true);
+
+  const openModal = (gif) => {
+    setSelectedGif(gif);
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+    setSelectedGif(null);
+  };
+
+  const launchGallery = async () => {
+    let permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      alert('Você precisa permitir o acesso à galeria.');
+      return;
+    }
+
+const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    });
+
+    if (!result.canceled) {
+      const newImage = { id: String(gifs.length + 1), uri: result.uri };
+      setGifs([...gifs, newImage]);
+
+      
+      await uploadImage(newImage.uri);
+    }
+  };
+
+  const launchCamera = async () => {
+    let permission = await ImagePicker.requestCameraPermissionsAsync();
+    if (!permission.granted) {
+      alert('Você precisa permitir o acesso à câmera.');
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    });
+
+    if (!result.canceled) {
+      const newImage = { id: String(gifs.length + 1), uri: result.uri };
+      setGifs([...gifs, newImage]);
+
+      
+      await uploadImage(newImage.uri);
+    }
+  };
+
+  const uploadImage = async (imageUri) => {
+    const formData = new FormData();
+    formData.append('file', {
+      uri: imageUri,
+      name: 'upload.jpg', 
+      type: 'image/jpeg'
+    });
+
+    try {
+      const response = await fetch('http://localhost:8080/create-gif', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        body: formData,
+      });
+
+      if (response.ok) {
+        Alert.alert('Sucesso', 'Imagem enviada com sucesso!');
+      } else {
+        Alert.alert('Erro', 'Falha ao enviar a imagem.');
+      }
+    } catch (error) {
+      console.error('Erro ao enviar imagem:', error);
+      Alert.alert('Erro', 'Ocorreu um erro ao enviar a imagem.');
+    }
+  };
+
+  return (
+    <View style={localStyles.container}>
+      <ImageBackground source={{ uri: 'https://img.freepik.com/vetores-premium/fundo-de-bokeh-suave-simples-e-bonito_125452-556.jpg' }} style={localStyles.userBackground}>
+        <View style={localStyles.userInfo}>
+          <Image source={{ uri: user.photo }} style={localStyles.userPhoto} />
+          <Text style={localStyles.userName}>{user.name}</Text>
+          <TouchableOpacity
+style={localStyles.logoutButton}
+            onPress={() => navigation.navigate('LogoutScreen')}
+          >
+            <Text style={localStyles.logoutButtonText}>Sair</Text>
+          </TouchableOpacity>
+        </View>
+      </ImageBackground>
+
+      <Text style={localStyles.sectionTitle}>GIFs Recentes</Text>
+      <Switch
+        value={showGifs}
+        onValueChange={setShowGifs}
+        style={localStyles.toggleSwitch}
+      />
+      {showGifs && (
+        <FlatList
+          data={user.gifs}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item }) => (
+            <TouchableOpacity onPress={() => openModal({ uri: item })} style={localStyles.gifContainer}>
+              <Image source={{ uri: item }} style={localStyles.gifImage} />
+            </TouchableOpacity>
+          )}
+          horizontal
+          contentContainerStyle={localStyles.gifList}
+          showsHorizontalScrollIndicator={false}
+        />
+      )}
+<Text style={localStyles.sectionTitle}>Galeria</Text>
+      {isLoading ? (
+        <BallIndicator size={30} color="#FF3403" />
+      ) : (
+        <FlatList
+          data={gifs}
+          keyExtractor={(item) => item.id}
+          numColumns={3}
+          contentContainerStyle={localStyles.gifListContainer}
+          renderItem={({ item }) => (
+            <TouchableOpacity onPress={() => openModal(item)} style={localStyles.gifContainer}>
+              <Image source={{ uri: item.uri }} style={localStyles.gifImage} />
+            </TouchableOpacity>
+          )}
+          ListEmptyComponent={<Text style={localStyles.emptyText}>Nenhum GIF encontrado</Text>}
+        />
+      )}
+
+      <TouchableOpacity style={localStyles.cameraButton} onPress={launchCamera}>
+        <Text style={localStyles.cameraButtonText}>Abrir Câmera</Text>
+      </TouchableOpacity>
+
+      <Modal visible={modalVisible} transparent={true} animationType="fade">
+        <View style={localStyles.modalBackground}>
+          <View style={localStyles.modalContainer}>
+            {selectedGif && (
+              <Image source={{ uri: selectedGif.uri }} style={localStyles.modalImageLarge} />
+            )}
+            <TouchableOpacity style={localStyles.closeButton} onPress={closeModal}>
+              <Text style={localStyles.closeButtonText}>Fechar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    </View>
+  );
+}

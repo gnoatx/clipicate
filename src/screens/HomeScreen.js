@@ -297,23 +297,4 @@ const result = await ImagePicker.launchCameraAsync({
   );
 }
 
-toggleSwitch: {
-  alignSelf: 'center',
-  marginVertical: 10,
-},
-cameraButton: {
-  alignSelf: 'center',
-  backgroundColor: '#FF3403',
-  padding: 10,
-  borderRadius: 5,
-  marginVertical: 20,
-},
-cameraButtonText: {
-  color: '#fff',
-  fontWeight: 'bold',
-},
-modalImageLarge: {
-  width: '90%',
-  height: '90%',
-  resizeMode: 'contain',
-},
+
