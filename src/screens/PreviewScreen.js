@@ -1,4 +1,4 @@
-import { View, Text, Button } from "react-native"
+import { View, Text, Button, Modal } from "react-native"
 import Video, {VideoRef} from 'react-native-video';
 import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
 import { useState } from "react";
@@ -12,13 +12,9 @@ export default function PreviewScreen(videoUri) {
 
         return (
             <Video
-                // Can be a URL or a local file.
                 source={video}
-                // Store reference  
-                ref={videoRef}
-                // Callback when remote video is buffering                                      
-                onBuffer={onBuffer}
-                // Callback when video cannot be loaded              
+                ref={videoRef}                                  
+                onBuffer={onBuffer}            
                 onError={onError}
                 style={styles.backgroundVideo}
             />
@@ -28,19 +24,21 @@ export default function PreviewScreen(videoUri) {
     return(
         <SafeAreaProvider>
             <SafeAreaView>
-                <Text>Prévia</Text>
-                <VideoPlayer />
-                <TextInput
-                    onChangeText={setDescription}
-                    value={description}
-                    placeholder="Crie uma descrição para seu gif."
-                />
-                <Button
-                    title="Enviar"
-                />
-                <Button
-                    title="Cancelar"
-                />
+                <Modal>
+                    <Text>Prévia</Text>
+                    <VideoPlayer />
+                    <TextInput
+                        onChangeText={setDescription}
+                        value={description}
+                        placeholder="Crie uma descrição para seu gif."
+                    />
+                    <Button
+                        title="Enviar"
+                    />
+                    <Button
+                        title="Cancelar"
+                    />
+                </Modal>
             </SafeAreaView>
         </SafeAreaProvider>
     )

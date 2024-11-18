@@ -78,4 +78,5 @@ const localStyles = StyleSheet.create({
     fontSize: 16,
   },
 });
+
 export default localStyles;
