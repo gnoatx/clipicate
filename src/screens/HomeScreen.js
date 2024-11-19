@@ -52,6 +52,7 @@ const openModal = (gif) => {
   
 
   const handleImagePicker = async (setIsLoading) => {
+    console.log("iniciando o handle image picker");
     try {
       const videoUri = await launchImagePicker(true);
       if(!videoUri){
@@ -70,6 +71,8 @@ const openModal = (gif) => {
 
       setIsLoading(true);
 
+      console.log("Chamando API");
+      
       const response = await axios.post('http://localhost:8080/api/create-gif', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
