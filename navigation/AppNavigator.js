@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -15,6 +15,7 @@ import PreviewScreen from '../src/screens/PreviewScreen'
 import FeedScreen from '../src/screens/FeedScreen';
 
 import { styles as globalStyles } from '../src/globalStyles';
+import axios from 'axios';
 
 const OptionsScreen = ({ navigation }) => {
   const handleEditOptions = () => {
@@ -60,9 +61,44 @@ const TabIcon = ({ name, color, size, focused }) => {
 
 const TabNavigator = () => {
 
-  function handleCamera() {
-    const recordedVideo = launchImagePicker(true)
+  const [isLoading, setIsLoading] = useState(false);
 
+  const handleImagePicker = async (setIsLoading) => {
+    console.log("iniciando o handle image picker");
+    try {
+      const videoUri = await launchImagePicker(true);
+      if(!videoUri){
+        console.log("Nenhum vídeo carregado...");
+        return
+      }
+
+      // Verifica se o usuário quer enviar aquele vídeo ou refazer
+
+      const formData = new FormData();
+      formData.append('file', {
+        uri: videoUri,
+        name: 'video.mp4',
+        type: 'video.mp4'
+      })
+
+      setIsLoading(true);
+
+      console.log("Chamando API");
+      
+      const response = await axios.post('http://10.0.2.2:8080/api/gif/create-gif', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        },
+      });
+
+      // Remover após testes
+      console.log(`Resposta da API: ${response.data}`);
+
+    } catch (error) {
+      console.error(`Erro ao enviar vídeo: ${error}`)
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -126,7 +162,7 @@ const TabNavigator = () => {
               alignItems: 'center',
               justifyContent: 'center'
             }}
-            onPress={handleCamera}
+            onPress={() => handleImagePicker(setIsLoading)}
           >
             <View
               style={{

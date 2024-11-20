@@ -147,7 +147,7 @@ const openModal = (gif) => {
         />
       )}
 
-      <TouchableOpacity style={localStyles.cameraButton} onPress={() => launchImagePicker(true)}>
+      <TouchableOpacity style={localStyles.cameraButton} onPress={() => handleImagePicker()}>
         <Text style={localStyles.cameraButtonText}>Abrir Câmera</Text>
       </TouchableOpacity>
 
