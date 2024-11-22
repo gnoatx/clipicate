@@ -73,34 +73,34 @@ const TabNavigator = () => {
       }
       console.log(videoUri)
       const fileInfo = await FileSystem.getInfoAsync(videoUri)
-      // Verifica se o usuário quer enviar aquele vídeo ou refazer
+
       if (fileInfo.exists) {
         const file = {
           uri: fileInfo.uri,
           name: 'video.mp4',
-          type: 'video.mp4'
+          type: 'video/mp4'
         };
 
         const formData = new FormData();
         formData.append('file', file);
 
         console.log("Chamando API");
-        const response = await axios.post('http://10.0.2.2/api/gif/create-gif', formData);
+        const response = await axios.post('http://10.0.2.2:8080/api/gif/create-gif', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          },
+        });
 
         console.log(`Resposta da API: ${response.data}`);
       } else {
         console.log("Arquivo não encontrado");
       }
-      
 
-      // , {
-      //   headers: {
-      //     'Content-Type': 'multipart/form-data'
-      //   },
-      // });
+
+
       // const response = await axios.get('http://10.0.2.2:8080/api/gif/hello')
       // Remover após testes
-      
+
 
     } catch (error) {
       console.error(`Erro ao enviar vídeo: ${error}`)
