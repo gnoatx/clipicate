@@ -110,6 +110,8 @@ const TabNavigator = () => {
     }
   }
 
+  //comentario
+  
   return (
     <Tab.Navigator
       screenOptions={{
