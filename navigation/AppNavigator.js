@@ -6,7 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { StatusBar, View, Text, Button, Alert, Pressable } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import { launchImagePicker } from '../src/services/imagePicker';
-
+import * as FileSystem from 'expo-file-system';
 import LoginScreen from '../src/screens/LoginScreen';
 import HomeScreen from '../src/screens/HomeScreen';
 import GalleryScreen from '../src/screens/GalleryScreen';
@@ -38,14 +38,14 @@ const TabIcon = ({ name, color, size, focused }) => {
 
   useEffect(() => {
     if (focused) {
-      iconRef.current?.animate({ 
-        0: { scale: 1.5, rotate: '0deg' }, 
-        1: { scale: 1, rotate: '360deg' } 
+      iconRef.current?.animate({
+        0: { scale: 1.5, rotate: '0deg' },
+        1: { scale: 1, rotate: '360deg' }
       });
     } else {
-      iconRef.current?.animate({ 
-        0: { scale: 1.5, rotate: '360deg' }, 
-        1: { scale: 1, rotate: '0deg' } 
+      iconRef.current?.animate({
+        0: { scale: 1.5, rotate: '360deg' },
+        1: { scale: 1, rotate: '0deg' }
       });
     }
   }, [focused]);
@@ -67,153 +67,163 @@ const TabNavigator = () => {
     console.log("iniciando o handle image picker");
     try {
       const videoUri = await launchImagePicker(true);
-      if(!videoUri){
+      if (!videoUri) {
         console.log("Nenhum vídeo carregado...");
         return
       }
-
+      console.log(videoUri)
+      const fileInfo = await FileSystem.getInfoAsync(videoUri)
       // Verifica se o usuário quer enviar aquele vídeo ou refazer
+      if (fileInfo.exists) {
+        const file = {
+          uri: fileInfo.uri,
+          name: 'video.mp4',
+          type: 'video.mp4'
+        };
 
-      const formData = new FormData();
-      formData.append('file', {
-        uri: videoUri,
-        name: 'video.mp4',
-        type: 'video.mp4'
-      })
+        const formData = new FormData();
+        formData.append('file', file);
 
-      setIsLoading(true);
+        console.log("Chamando API");
+        const response = await axios.post('http://10.0.2.2/api/gif/create-gif', formData);
 
-      console.log("Chamando API");
+        console.log(`Resposta da API: ${response.data}`);
+      } else {
+        console.log("Arquivo não encontrado");
+      }
       
-      const response = await axios.post('http://10.0.2.2:8080/api/gif/create-gif', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        },
-      });
 
+      // , {
+      //   headers: {
+      //     'Content-Type': 'multipart/form-data'
+      //   },
+      // });
+      // const response = await axios.get('http://10.0.2.2:8080/api/gif/hello')
       // Remover após testes
-      console.log(`Resposta da API: ${response.data}`);
+      
 
     } catch (error) {
       console.error(`Erro ao enviar vídeo: ${error}`)
+      console.error(error.data)
     } finally {
       setIsLoading(false);
     }
   }
 
   return (
-  <Tab.Navigator
-    screenOptions={{
-      tabBarStyle: {
-        position: 'absolute',
-        overflow: 'visible',
-        backgroundColor: "#F0E8E0",
-        height: 50,
-      },
-      tabBarShowLabel: false,
-      // tabBarBackground: () => (
-      //   <BlurView tint='light' intensity={100} experimentalBlurMethod='dimezisBlurView'/>
-      // )
-    }}
-  >
-    <Tab.Screen 
-      name="Home" 
-      component={HomeScreen} 
-      options={{ 
-        tabBarIcon: ({ color, size, focused }) => (
-          <TabIcon name="home" color={color} size={size} focused={focused} />
-        ),
-        tabBarIconStyle: {
-          bottom: 0,
+    <Tab.Navigator
+      screenOptions={{
+        tabBarStyle: {
+          position: 'absolute',
+          overflow: 'visible',
+          backgroundColor: "#F0E8E0",
           height: 50,
-        }
-
-      }} 
-    />
-    <Tab.Screen 
-      name="Gallery" 
-      component={GalleryScreen} 
-      options={{
-        tabBarIcon: ({ color, size, focused }) => (
-          <TabIcon name="image" color={color} size={size} focused={focused} />
-        ),
-      }} 
-    />
-    <Tab.Screen
-      name="Camera"
-      component={PreviewScreen}
-      options={{
-        // tabBarItemStyle: globalStyles.cameraButton,
-        // tabBarIconStyle: {
-        //   opacity: 0,
-        // }
-        tabBarButton: () => (
-          <Pressable
-            style={{
-              backgroundColor: "#F0E8E0",
-              width: 75,
-              height: 75,
-              marginTop: -25,
-              position: "relative",
-              borderRadius: 99,
-              borderColor: "#FF3403",
-              borderWidth: 5,
-              display: "flex",
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-            onPress={() => handleImagePicker(setIsLoading)}
-          >
-            <View
-              style={{
-                backgroundColor: "#FF3403",
-                width: 55,
-                height: 55,
-                borderRadius: 99,
-              }}
-            ></View>
-          </Pressable>
-        )
+        },
+        tabBarShowLabel: false,
+        // tabBarBackground: () => (
+        //   <BlurView tint='light' intensity={100} experimentalBlurMethod='dimezisBlurView'/>
+        // )
       }}
-    />
+    >
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{
+          tabBarIcon: ({ color, size, focused }) => (
+            <TabIcon name="home" color={color} size={size} focused={focused} />
+          ),
+          tabBarIconStyle: {
+            bottom: 0,
+            height: 50,
+          }
 
-    <Tab.Screen 
-      name="Feeds" 
-      component={FeedScreen} 
-      options={{
-        tabBarIcon: ({ color, size, focused }) => (
-          <TabIcon name="logo-octocat" color={color} size={size} focused={focused} />
-        ),
-      }} 
-    />
-  </Tab.Navigator>
-)};
+        }}
+      />
+      <Tab.Screen
+        name="Gallery"
+        component={GalleryScreen}
+        options={{
+          tabBarIcon: ({ color, size, focused }) => (
+            <TabIcon name="image" color={color} size={size} focused={focused} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Camera"
+        component={PreviewScreen}
+        options={{
+          // tabBarItemStyle: globalStyles.cameraButton,
+          // tabBarIconStyle: {
+          //   opacity: 0,
+          // }
+          tabBarButton: () => (
+            <Pressable
+              style={{
+                backgroundColor: "#F0E8E0",
+                width: 75,
+                height: 75,
+                marginTop: -25,
+                position: "relative",
+                borderRadius: 99,
+                borderColor: "#FF3403",
+                borderWidth: 5,
+                display: "flex",
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+              onPress={() => handleImagePicker(setIsLoading)}
+            >
+              <View
+                style={{
+                  backgroundColor: "#FF3403",
+                  width: 55,
+                  height: 55,
+                  borderRadius: 99,
+                }}
+              ></View>
+            </Pressable>
+          )
+        }}
+      />
+
+      <Tab.Screen
+        name="Feeds"
+        component={FeedScreen}
+        options={{
+          tabBarIcon: ({ color, size, focused }) => (
+            <TabIcon name="logo-octocat" color={color} size={size} focused={focused} />
+          ),
+        }}
+      />
+    </Tab.Navigator>
+  )
+};
 
 const AppNavigator = () => {
   return (
     <NavigationContainer>
-      <StatusBar 
+      <StatusBar
         barStyle="light-content"
         backgroundColor="#FF3403"
       />
       <Stack.Navigator initialRouteName="Home">
-        <Stack.Screen 
-          name="Login" 
-          component={LoginScreen} 
-          options={{ headerShown: false }} 
+        <Stack.Screen
+          name="Login"
+          component={LoginScreen}
+          options={{ headerShown: false }}
         />
-        <Stack.Screen 
-          name="Home" 
-          component={TabNavigator} 
-          options={{ headerShown: false }} 
+        <Stack.Screen
+          name="Home"
+          component={TabNavigator}
+          options={{ headerShown: false }}
         />
-        <Stack.Screen 
-          name="LogoutScreen" 
-          component={LogoutScreen} 
+        <Stack.Screen
+          name="LogoutScreen"
+          component={LogoutScreen}
         />
-        <Stack.Screen 
-          name="Feed" 
-          component={FeedScreen} 
+        <Stack.Screen
+          name="Feed"
+          component={FeedScreen}
         />
       </Stack.Navigator>
     </NavigationContainer>
