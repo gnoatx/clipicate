@@ -73,6 +73,9 @@ export const launchImagePicker = async (isCamera = false) => {
         await ImagePicker.launchImageLibraryAsync(pickerOptions)
 
     if (result.assets && !result.canceled) {
+        if (result.assets[0].fileSize > 9500000) {
+            return alert('Vídeo muito grande!')
+        }
         return result.assets[0].uri;
     }
 
