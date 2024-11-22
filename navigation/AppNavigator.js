@@ -74,18 +74,23 @@ const TabNavigator = () => {
       console.log(videoUri)
       const fileInfo = await FileSystem.getInfoAsync(videoUri)
 
+      
       if (fileInfo.exists) {
-        const file = {
+        let file = {
           uri: fileInfo.uri,
-          name: 'video.mp4',
-          type: 'video/mp4'
+          name: 'video.mov',
+          type: 'video/quicktime'
         };
+        // if (fileInfo.uri.endsWith('mov')) {
+        //   file.name = 'video.mov'
+        //   file.type = 'video/quicktime'
+        // }
 
         const formData = new FormData();
         formData.append('file', file);
 
         console.log("Chamando API");
-        const response = await axios.post('http://10.0.2.2:8080/api/gif/create-gif', formData, {
+        const response = await axios.post('http://192.168.10.4:8080/api/gif/create-gif', formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
           },

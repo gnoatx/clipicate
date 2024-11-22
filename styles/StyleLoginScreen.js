@@ -12,7 +12,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: '#333',
-    marginBottom: 20,
+    marginBottom: 50,
   },
   input: {
     width: '100%',

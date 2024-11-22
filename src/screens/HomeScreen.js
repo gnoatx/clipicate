@@ -73,7 +73,7 @@ const openModal = (gif) => {
 
       console.log("Chamando API");
       
-      const response = await axios.post('http://localhost:8080/api/create-gif', formData, {
+      const response = await axios.post('http://192.168.10.1:8080/api/gif/create-gif', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         },
