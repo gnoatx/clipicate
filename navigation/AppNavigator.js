@@ -102,12 +102,6 @@ const TabNavigator = () => {
         console.log("Arquivo não encontrado");
       }
 
-
-
-      // const response = await axios.get('http://10.0.2.2:8080/api/gif/hello')
-      // Remover após testes
-
-
     } catch (error) {
       console.error(`Erro ao enviar vídeo: ${error}`)
       console.error(error.data)
@@ -115,6 +109,8 @@ const TabNavigator = () => {
       setIsLoading(false);
     }
   }
+
+  
 
   return (
     <Tab.Navigator

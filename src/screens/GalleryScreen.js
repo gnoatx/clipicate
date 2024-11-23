@@ -1,78 +1,64 @@
-import React, { useState } from 'react';
-import { View, Text, Image, Modal, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
-import { BallIndicator } from 'react-native-indicators';
-import Styles from '../../styles/StyleGalleryScreen'; 
-import { launchImagePicker } from '../services/imagePicker';
+import React, { useEffect, useState } from "react";
+import { View, Text, Image, StyleSheet, ScrollView } from "react-native";
+import axios from "axios";
 
-export function GalleryScreen() {
-  const [gifs, setGifs] = useState([
-    { id: '1', uri: 'https://th.bing.com/th/id/R.6dcf3a15e0b17ea5742892e4ae220b4a?rik=O7xK9qmJYBMkDQ&pid=ImgRaw&r=0' }, 
-    { id: '2', uri: 'https://media1.tenor.com/m/qs5pVKHIyTUAAAAd/kakashi-hatake-kakashi.gif' }, 
-    { id: '3', uri: 'https://media1.tenor.com/m/o7ZwUccm6OAAAAAd/x.gif' }, 
-    { id: '4', uri: 'https://media1.tenor.com/m/hBwkISiqNI0AAAAd/shura-hiwa-lamer.gif' }, 
-    { id: '5', uri: 'https://media1.tenor.com/m/5hCo-bxm3mUAAAAd/gojo-gojo-annoyed.gif' }, 
-    { id: '6', uri: 'https://media1.tenor.com/m/8UntVSgyu6QAAAAd/gojo-satoru-satoru-gojo.gif' }, 
-    { id: '7', uri: 'https://media1.tenor.com/m/XUiSuVmjE_oAAAAC/satoru-gojo-high-gojo-high.gif' }, 
-    { id: '8', uri: 'https://media1.tenor.com/m/W7G0UqnWAcUAAAAC/gojo-gojo-happy.gif' }, 
-  ]);
+const GifGallery = () => {
+  const [gifList, setGifList] = useState([]);
 
-  const [selectedGif, setSelectedGif] = useState(null);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  useEffect(() => {
+    const fetchGifs = async () => {
+      try {
+        const response = await axios.get("http://192.168.10.11:8080/api/gif/gifs");
+        setGifList(response.data); // Certifique-se de que `response.data` contém uma lista de GIFs em Base64
+      } catch (error) {
+        console.error("Erro ao buscar GIFs:", error);
+      }
+    };
 
-  const openModal = (gif) => {
-    setSelectedGif(gif);
-    setModalVisible(true);
-  };
-
-  const closeModal = () => {
-    setModalVisible(false);
-    setSelectedGif(null);
-  };
+    fetchGifs();
+  }, []);
 
   return (
-    <View style={Styles.container}>
-      {isLoading ? (
-        <BallIndicator size={30} color="#FF3403" />
+    <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.title}>Galeria de GIFs</Text>
+      {gifList.length > 0 ? (
+        gifList.map((gif, index) => {
+          let file = gif.file64.map((byte) => String.fromCharCode(byte)).join('')
+          return (
+          <Image
+            key={index}
+            source={{ uri: `data:image/gif;base64,${file}` }}
+            style={styles.image}
+          />)
+      })
       ) : (
-        <View style={Styles.buttonContainer}>
-          <TouchableOpacity style={Styles.customButton} onPress={() => launchImagePicker(true)}>
-            <Text style={Styles.buttonText}>Abrir a câmera</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={Styles.customButton} onPress={() => launchImagePicker()}>
-            <Text style={Styles.buttonText}>Abrir galeria</Text>
-          </TouchableOpacity>
-        </View>
+        <Text style={styles.loadingText}>Carregando GIFs...</Text>
       )}
-
-      <FlatList
-        data={gifs}
-        keyExtractor={(item) => item.id}
-        numColumns={3} 
-        contentContainerStyle={Styles.gifListContainer}
-        renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => openModal(item)} style={Styles.gifContainer}>
-            <Image source={{ uri: item.uri }} style={Styles.gifImage} />
-          </TouchableOpacity>
-        )}
-        ListEmptyComponent={<Text style={Styles.emptyText}>Nenhum GIF encontrado</Text>}
-      />
-
-      <Modal visible={modalVisible} transparent={true} animationType="fade">
-        <View style={Styles.modalBackground}>
-          <View style={Styles.modalContainer}>
-            {selectedGif && (
-              <Image source={{ uri: selectedGif.uri }} style={Styles.modalImage} />
-            )}
-            <TouchableOpacity style={Styles.closeButton} onPress={closeModal}>
-              <Text style={Styles.closeButtonText}>Fechar</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-    </View>
+    </ScrollView>
   );
-}
+};
 
-export default GalleryScreen;
+const styles = StyleSheet.create({
+  container: {
+    flexGrow: 1,
+    alignItems: "center",
+    padding: 10,
+    backgroundColor: "#f9f9f9",
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 20,
+  },
+  image: {
+    width: 200,
+    height: 200,
+    marginVertical: 10,
+  },
+  loadingText: {
+    fontSize: 18,
+    color: "#888",
+  },
+});
+
+export default GifGallery;

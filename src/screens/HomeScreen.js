@@ -198,5 +198,3 @@ const darkTheme = StyleSheet.create({
     alignItems: 'center',
   },
 });
-
-
